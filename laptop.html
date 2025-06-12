@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Laptop Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.3rem;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.7rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #msg {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: bold;
+      min-height: 1.5em;
+      color: green;
+    }
+
+    #alreadyRegisteredBtn {
+      font-size: 1.3rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    #alreadySection {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    #actionButtons {
+      display: flex;
+      gap: 10px;
+      margin-top: 0.8rem;
+    }
+
+    #actionButtons button {
+      width: 48%;
+      margin-top: 0;
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background-color: rgba(111, 230, 74, 0.9);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    #overlay.success {
+      background-color: rgba(255, 255, 255, 0.9);
+      animation: successPulse 0.7s ease;
+    }
+
+    #overlay.error {
+      background-color: rgba(255, 255, 255, 0.9);
+      animation: errorShake 0.6s ease;
+    }
+
+    @keyframes successPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes errorShake {
+      0% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-8px);
+      }
+
+      50% {
+        transform: translateX(8px);
+      }
+
+      75% {
+        transform: translateX(-8px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    #modal {
+      background-color: #ffffff;
+      padding: 3rem 4rem;
+      /* Increased padding */
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      min-width: 400px;
+      /* Wider modal */
+      max-width: 600px;
+      transform: scale(0.9);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    #overlay.show #modal {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    #modal p {
+      font-size: 1.3rem;
+      /* Larger text */
+      font-weight: bold;
+      color: #000;
+    }
+
+    #modalContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #modalIcon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    #overlay.success #modalIcon {
+      color: green;
+      content: "✅";
+    }
+
+    #overlay.error #modalIcon {
+      color: red;
+      content: "❌";
+    }
+
+    #modal button {
+      margin-top: 1rem;
+      padding: 0.5rem 1.5rem;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Laptop Register</h1>
+    <button id="alreadyRegisteredBtn">Already Registered</button>
+
+    <div id="alreadySection">
+      <label for="uniqueIdInput">Enter Unique ID *</label>
+      <input type="text" id="uniqueIdInput" placeholder="e.g. Man789" />
+
+      <div id="actionButtons">
+        <button id="recheckinBtn">Check In</button>
+        <button id="checkoutBtn">Check Out</button>
+      </div>
+
+      <button id="forgotUniqueIdBtn" style="margin-top: 10px;">Forgot Unique ID?</button>
+
+      <div id="forgotSection" style="display:none; margin-top: 1rem;">
+        <label for="forgotNameInput">Enter Your Name *</label>
+        <input type="text" id="forgotNameInput" placeholder="Enter your name" />
+
+        <label for="forgotSerialInput">Enter Serial Number *</label>
+        <input type="text" id="forgotSerialInput" placeholder="Enter your serial number" />
+
+        <button id="searchUniqueIdBtn" style="margin-top: 0.5rem;">Search</button>
+      </div>
+    </div>
+
+    <form id="checkinForm">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="model">Model * (alphabets only)</label>
+      <input type="text" id="model" name="model" pattern="[A-Za-z]+" title="Model must contain alphabets only"
+        required />
+
+      <label for="serial">Serial Number * (alphanumeric only)</label>
+      <input type="text" id="serial" name="serial" pattern="[A-Za-z0-9]+"
+        title="Serial number must be alphanumeric only" required />
+
+      <button>Check In</button>
+    </form>
+
+    <p id="msg"></p>
+  </div>
+
+  <div id="overlay">
+    <div id="modal">
+      <div id="modalContent">
+        <div id="modalIcon">✅</div>
+        <p id="modalText"></p>
+        <button onclick="closeModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    const checkinForm = document.getElementById('checkinForm');
+    const alreadyRegisteredBtn = document.getElementById('alreadyRegisteredBtn');
+    const alreadySection = document.getElementById('alreadySection');
+    const uniqueIdInput = document.getElementById('uniqueIdInput');
+    const recheckinBtn = document.getElementById('recheckinBtn');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    const forgotUniqueIdBtn = document.getElementById('forgotUniqueIdBtn');
+    const forgotSection = document.getElementById('forgotSection');
+    const forgotNameInput = document.getElementById('forgotNameInput');
+    const forgotSerialInput = document.getElementById('forgotSerialInput');
+    const searchUniqueIdBtn = document.getElementById('searchUniqueIdBtn');
+
+    function showMessage(text, type = 'success', autoClose = false, redirectUrl = null) {
+      const overlay = document.getElementById('overlay');
+      const modalText = document.getElementById('modalText');
+      const modalIcon = document.getElementById('modalIcon');
+
+      modalText.textContent = text;
+      modalIcon.textContent = type === 'success' ? '✅' : '❌';
+
+      overlay.className = '';
+      overlay.classList.add('show', type);
+      overlay.style.display = 'flex';
+      overlay.dataset.redirectUrl = redirectUrl || '';
+
+      if (autoClose) {
+        setTimeout(() => closeModal(), 40000);
+      }
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('overlay');
+      overlay.style.display = 'none';
+      const redirectUrl = overlay.dataset.redirectUrl;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      }
+    }
+
+    alreadyRegisteredBtn.onclick = () => {
+      alreadySection.style.display = alreadySection.style.display === 'block' ? 'none' : 'block';
+      uniqueIdInput.value = '';
+      forgotNameInput.value = '';
+      forgotSerialInput.value = '';
+      forgotSection.style.display = 'none';
+    };
+
+    function clearAllInputs() {
+      document.querySelectorAll('input').forEach(input => {
+        if (input.offsetParent !== null) input.value = '';
+      });
+    }
+
+    checkinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = checkinForm.name.value.trim();
+      const model = checkinForm.model.value.trim().toUpperCase();
+      const serial = checkinForm.serial.value.trim().toUpperCase();
+
+      const modelPattern = /^[A-Za-z]+$/;
+      const serialPattern = /^[A-Za-z0-9]+$/;
+
+      if (!name || !model || !serial) {
+        showMessage('Please fill all fields', 'error');
+        return;
+      }
+
+      if (!modelPattern.test(model)) {
+        showMessage('Model must contain alphabets only', 'error');
+        return;
+      }
+
+      if (!serialPattern.test(serial)) {
+        showMessage('Serial number must be alphanumeric only', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, model, serial, type: 'checkin' })
+        });
+
+        const text = await res.text();
+
+        if (res.ok) {
+          showMessage(`✅ ${text}`, 'success', true, 'index.html');
+          checkinForm.reset();
+        } else {
+          showMessage(text, 'error');
+        }
+      } catch (err) {
+        showMessage('Error connecting to server', 'error');
+      }
+    });
+
+    recheckinBtn.onclick = async () => {
+      const uniqueId = uniqueIdInput.value.trim();
+      if (!uniqueId) return showMessage('Please enter unique ID', 'error');
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uniqueId, type: 'reregister_checkin' }),
+        });
+
+        const text = await res.text();
+        if (res.ok) {
+          showMessage(text, 'success', true, 'index.html');
+          clearAllInputs();
+        } else {
+          showMessage(text, 'error');
+        }
+      } catch (err) {
+        showMessage('Error connecting to server', 'error');
+      }
+    };
+
+    checkoutBtn.onclick = async () => {
+      const uniqueId = uniqueIdInput.value.trim();
+      if (!uniqueId) return showMessage('Please enter unique ID', 'error');
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uniqueId, type: 'reregister_checkout' })
+        });
+
+        const text = await res.text();
+        if (res.ok) {
+          showMessage(text, 'success',true, 'index.html');
+          clearAllInputs();
+        } else {
+          showMessage(text, 'error');
+        }
+      } catch (err) {
+        showMessage('Error connecting to server', 'error');
+      }
+    };
+
+    forgotUniqueIdBtn.onclick = () => {
+      forgotSection.style.display = forgotSection.style.display === 'block' ? 'none' : 'block';
+      forgotNameInput.value = '';
+      forgotSerialInput.value = '';
+    };
+
+    searchUniqueIdBtn.onclick = async () => {
+      const name = forgotNameInput.value.trim();
+      const serial = forgotSerialInput.value.trim().toUpperCase();
+
+      if (!name || !serial) {
+        alert('Please enter both name and serial number');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/searchByNameAndSerial?name=${encodeURIComponent(name)}&serial=${encodeURIComponent(serial)}`);
+        const data = await res.json();
+
+        if (res.ok && data.UniqueID) {
+          showMessage(`✅ Your Unique ID is: ${data.UniqueID}`, 'success', true, 'index.html');
+          clearAllInputs();
+        } else {
+          alert(data.error || 'No matching records found.');
+        }
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    };
+
+    const checkinInputs = checkinForm.querySelectorAll('input');
+    checkinInputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        if (alreadySection.style.display === 'block') {
+          alreadySection.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+
+</body>
+
+</html>
